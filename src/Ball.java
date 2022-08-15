@@ -1,13 +1,13 @@
+// 327721544 Bar Kirshenboim
+
 import biuoop.DrawSurface;
 
 import java.awt.Color;
 
-
 /**
  * defining Ball class with center point, radius and color.
  */
-public class Ball {
-    private static final double ERROR = 1;
+public class Ball implements Sprite {
     private Color color;
     private Point center;
     private int radius;
@@ -146,6 +146,11 @@ public class Ball {
         surface.fillCircle(centerX, centerY, r);
     }
 
+    @Override
+    public void timePassed() {
+        this.moveOneStep();
+    }
+
     /**
      * this function set this ball velocity.
      *
@@ -165,38 +170,63 @@ public class Ball {
         this.velocity = new Velocity(dx, dy);
     }
 
+    /**
+     * check if ball is stuck inside a collidable object.
+     *
+     * @param collidable the object the ball collide with
+     * @return true if ball inside it and false otherwise
+     */
+    public boolean inCollidable(Collidable collidable) {
+        double xLeft = collidable.getCollisionRectangle().getUpperLeft().getX() + this.radius;
+        double xRight = xLeft + collidable.getCollisionRectangle().getWidth() - this.radius;
+        double yUp = collidable.getCollisionRectangle().getUpperLeft().getY() + this.radius;
+        double yLow = yUp + collidable.getCollisionRectangle().getHeight() - this.radius;
+
+        double centerX = this.center.getX();
+        double centerY = this.center.getY();
+        return (centerX < xRight && centerX > xLeft) && (centerY < yLow && centerY > yUp);
+    }
 
     /**
      * this function moves the ball one step by applying velocity on ball.
      */
+
     public void moveOneStep() {
-        double dx = this.velocity.getDx();
-        double dy = this.velocity.getDy();
         // calculating the wanted trajectory of ball
         Line trajectory = new Line(this.center, this.velocity.applyToPoint(this.center));
         CollisionInfo collisionInfo = this.gameEnvironment.getClosestCollision(trajectory);
-        // checking if there isnt a collision through the trajectory and the ball can go with no distrubs
-        if (collisionInfo == null) {
-            this.center = this.velocity.applyToPoint(this.center);
-        } else {
-            Point collisionPoint = collisionInfo.collisionPoint();
-            if (collisionPoint == null) {
-                this.center = this.velocity.applyToPoint(this.center);
+
+
+        // if there is a collision then we want to change the velocity
+        if (collisionInfo != null && collisionInfo.collisionPoint() != null) {
+            // if ball inside a collidable
+            if (this.inCollidable(collisionInfo.collisionObject())) {
+                double x = collisionInfo.collisionObject().getCollisionRectangle().getCenter().getX();
+                double y = collisionInfo.collisionObject().getCollisionRectangle().getUpperLeft().getY();
+                this.center = new Point(x, y);
+                this.setVelocity(this.velocity.getDx(), -Math.abs(this.velocity.getDy()));
+                this.center = (this.velocity.applyToPoint(this.center));
                 return;
-
             }
-            //getting the ball almost to collision point
-            double dxAlmostCollide = collisionPoint.getX() - this.center.getX();
-            double dyAlmostCollide = collisionPoint.getY() - this.center.getY();
-            Velocity getToCollision = new Velocity(dxAlmostCollide, dyAlmostCollide);
-
-            this.center = getToCollision.applyToPoint(this.center);
-            //updating velocity with hit function
-            this.setVelocity(collisionInfo.collisionObject().hit(collisionPoint, this.velocity));
-            this.center = this.velocity.applyToPoint(this.center);
-
+            Velocity newVal = collisionInfo.collisionObject().hit(collisionInfo.collisionPoint(), this.velocity);
+            this.setVelocity(newVal.getDx(), newVal.getDy());
+            double dx = this.velocity.getDx();
+            double dy = this.velocity.getDy();
+            Velocity outOfCollision = new Velocity(dx / Math.abs(dx), dy / Math.abs(dy));
+            this.center = outOfCollision.applyToPoint(this.center);
+        } else { // if nothing disturbing the trajectory then move the ball
+            this.center = trajectory.end();
         }
 
+    }
+
+    /**
+     * this function is adding the ball to the sprites objects of game.
+     *
+     * @param g game
+     */
+    public void addToGame(Game g) {
+        g.addSprite(this);
     }
 
 }

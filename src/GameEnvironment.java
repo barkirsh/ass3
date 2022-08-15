@@ -1,11 +1,13 @@
-import java.awt.*;
+// 327721544 Bar Kirshenboim
+
+import java.awt.Color;
 import java.util.ArrayList;
 
 /**
  * this is the game environment.
  */
 public class GameEnvironment {
-    private java.util.List<Collidable> environment = new ArrayList<>();
+    private final java.util.List<Collidable> environment = new ArrayList<>();
 
     /**
      * add the given collidable to the environment.
@@ -23,7 +25,7 @@ public class GameEnvironment {
      * in this collection, return null. Else, return the information
      * about the closest collision that is going to occur.
      *
-     * @param trajectory
+     * @param trajectory the trajectory
      * @return collision info
      */
     public CollisionInfo getClosestCollision(Line trajectory) {
@@ -38,14 +40,14 @@ public class GameEnvironment {
                 trajectory.closestIntersectionToStartOfLine(tmp.get(0).getCollisionRectangle());
         //intilaizing collision info
         collisionInfo = new CollisionInfo(closestCollidable, tmp.get(0));
-        for (int i = 0; i < tmp.size(); i++) {
+        for (Collidable collidable : tmp) {
             Point crossCollidableWithLine =
-                    trajectory.closestIntersectionToStartOfLine(tmp.get(i).getCollisionRectangle());
+                    trajectory.closestIntersectionToStartOfLine(collidable.getCollisionRectangle());
             if (crossCollidableWithLine == null) {
                 continue;
             } else if (closestCollidable == null) {
                 closestCollidable = crossCollidableWithLine;
-                collisionInfo = new CollisionInfo(closestCollidable, tmp.get(i));
+                collisionInfo = new CollisionInfo(closestCollidable, collidable);
                 continue;
 
             }
@@ -53,7 +55,7 @@ public class GameEnvironment {
             if (trajectory.distancePointFromLine(crossCollidableWithLine)
                     <= trajectory.distancePointFromLine(closestCollidable)) {
                 closestCollidable = crossCollidableWithLine;
-                collisionInfo = new CollisionInfo(closestCollidable, tmp.get(i));
+                collisionInfo = new CollisionInfo(closestCollidable, collidable);
             }
         }
         return collisionInfo;

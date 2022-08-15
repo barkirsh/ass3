@@ -1,3 +1,5 @@
+// 327721544 Bar Kirshenboim
+
 import biuoop.DrawSurface;
 
 import java.awt.Color;
@@ -5,10 +7,10 @@ import java.awt.Color;
 /**
  * this Block class implements the Collidable interface.
  */
-public class Block implements Collidable {
+public class Block implements Collidable, Sprite {
     private static final double ERROR = 0.001;
 
-    private Rectangle rectangle;
+    private final Rectangle rectangle;
     private Color color = Color.BLACK;
 
     /**
@@ -20,16 +22,20 @@ public class Block implements Collidable {
         this.rectangle = rectangle;
     }
 
+    /**
+     * setter to color of block.
+     *
+     * @param color color
+     */
     public void setColor(Color color) {
         this.color = color;
     }
 
-    public Point getCenter() {
-        double x = (this.rectangle.getUpperLeft().getX() + this.rectangle.getWidth()) / 2;
-        double y = (this.rectangle.getUpperLeft().getY() + this.rectangle.getHeight()) / 2;
-        return new Point(x, y);
-    }
-
+    /**
+     * getter to size of block.
+     *
+     * @return size of block
+     */
     public double getSize() {
         return this.rectangle.getWidth() * this.rectangle.getHeight();
     }
@@ -41,6 +47,12 @@ public class Block implements Collidable {
         return this.rectangle;
     }
 
+    /**
+     * check if hit is in an edge block.
+     *
+     * @param collisionPoint collision point
+     * @return true if hit with edge, false otherwise
+     */
     public boolean edgeHit(Point collisionPoint) {
         Point upLeft, upRight, lowLeft, lowRight;
         upLeft = this.rectangle.getUpperLeft();
@@ -48,11 +60,8 @@ public class Block implements Collidable {
         lowLeft = new Point(upLeft.getX(), this.rectangle.getUpperLeft().getY() + this.rectangle.getHeight());
         lowRight = new Point(upRight.getX(), lowLeft.getY());
 
-        if (upLeft.equals(collisionPoint) || upRight.equals(collisionPoint)
-                || lowRight.equals(collisionPoint) || lowLeft.equals(collisionPoint)) {
-            return true;
-        }
-        return false;
+        return upLeft.distance(collisionPoint) <= ERROR || upRight.distance(collisionPoint) <= ERROR
+                || lowRight.distance(collisionPoint) <= ERROR || lowLeft.distance(collisionPoint) <= ERROR;
     }
 
     /**
@@ -63,34 +72,29 @@ public class Block implements Collidable {
      * @return post hit velocity
      */
     public Velocity hit(Point collisionPoint, Velocity currentVelocity) {
-        // notifying the block that there is a collision
-        //this.notify();
-        if (this.edgeHit(collisionPoint)) {
-            return new Velocity(-currentVelocity.getDx(), -currentVelocity.getDy());
+        // defining the block edges
+        Point upLeft = this.rectangle.getUpperLeft();
+        Point lowLeft = new Point(upLeft.getX(), upLeft.getY() + this.rectangle.getHeight());
+        Point upRight = new Point(upLeft.getX() + this.rectangle.getWidth(), upLeft.getY());
+        Point lowRight = new Point(upRight.getX(), lowLeft.getY());
 
-        }
-        if (Math.abs(this.rectangle.getUpperLeft().getY() - collisionPoint.getY())
-                <= ERROR
-                || Math.abs(this.rectangle.getUpperLeft().getY() + this.rectangle.getHeight() - collisionPoint.getY())
-                <= ERROR) {
-            //if (Math.abs(this.rectangle.getUpperLeft().getX() - collisionPoint.getX())
-            //      <= ERROR
-            //  || Math.abs(this.rectangle.getUpperLeft().getX() + this.rectangle.getWidth() - collisionPoint.getX())
-            //    <= ERROR) {
-            //return new Velocity(-currentVelocity.getDx(), -currentVelocity.getDy());
+        Velocity velocity = null;
 
-            //}
+        if (this.edgeHit(collisionPoint)) { //the ball hit an edge of block
+            velocity = new Velocity(-currentVelocity.getDx(), -currentVelocity.getDy());
 
-            // vertical collision
-            return new Velocity(currentVelocity.getDx(), -currentVelocity.getDy());
-        } else if (Math.abs(this.rectangle.getUpperLeft().getX() - collisionPoint.getX())
-                <= ERROR
-                || Math.abs(this.rectangle.getUpperLeft().getX() + this.rectangle.getWidth() - collisionPoint.getX())
-                <= ERROR) {
+        } else if (Math.abs(collisionPoint.getY() - upLeft.getY()) <= ERROR
+                || Math.abs(lowRight.getY() - collisionPoint.getY()) <= ERROR) {
+            //vertical collision
+            velocity = new Velocity(currentVelocity.getDx(), -currentVelocity.getDy());
+        } else if (Math.abs(upLeft.getX() - collisionPoint.getX()) <= ERROR
+                || Math.abs(collisionPoint.getX() - lowRight.getX()) <= ERROR) {
             //horizontal collision
-            return new Velocity(-currentVelocity.getDx(), currentVelocity.getDy());
+
+            velocity = new Velocity(-currentVelocity.getDx(), currentVelocity.getDy());
         }
-        return null;
+
+        return velocity;
     }
 
 
@@ -108,5 +112,23 @@ public class Block implements Collidable {
         double width = this.rectangle.getWidth();
         double height = this.rectangle.getHeight();
         surface.fillRectangle((int) upperLeft.getX(), (int) upperLeft.getY(), (int) width, (int) height);
+        surface.setColor(Color.black);
+        surface.drawRectangle((int) upperLeft.getX(), (int) upperLeft.getY(), (int) width, (int) height);
+
+    }
+
+    @Override
+    public void timePassed() {
+        return;
+    }
+
+    /**
+     * add block to game.
+     *
+     * @param g game
+     */
+    public void addToGame(Game g) {
+        g.addCollidable(this);
+        g.addSprite(this);
     }
 }

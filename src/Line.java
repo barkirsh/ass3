@@ -191,11 +191,8 @@ public class Line {
         if (p == null) {
             return false;
         }
-        if ((p.getY() <= this.start().getY() && p.getY() >= this.end().getY())
-                || (p.getY() <= this.end().getY() && p.getY() >= this.start().getY())) {
-            return true;
-        }
-        return false;
+        return (p.getY() <= this.start().getY() && p.getY() >= this.end().getY())
+                || (p.getY() <= this.end().getY() && p.getY() >= this.start().getY());
     }
 
     /**
@@ -203,11 +200,8 @@ public class Line {
      * @return true if point is on x range, false otherwise
      */
     public boolean isOnRangeX(Point p) {
-        if ((p.getX() <= this.start().getX() && p.getX() >= this.end().getX())
-                || (p.getX() <= this.end().getX() && p.getX() >= this.start().getX())) {
-            return true;
-        }
-        return false;
+        return (p.getX() <= this.start().getX() && p.getX() >= this.end().getX())
+                || (p.getX() <= this.end().getX() && p.getX() >= this.start().getX());
     }
 
     /**
@@ -215,7 +209,7 @@ public class Line {
      * @return distance of given point to this line using math formulas
      */
     public double distancePointFromLine(Point p) {
-        double distance;// default def for distance point from line
+        // default def for distance point from line
         Double slope = this.lineM();
         Double lineConst = this.lineB();
         if (p == null) {

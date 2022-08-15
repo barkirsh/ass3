@@ -1,3 +1,5 @@
+// 327721544 Bar Kirshenboim
+
 /**
  * this class defines a point.
  */
@@ -114,11 +116,9 @@ public class Point {
             return false;
         } else if (y > start.getY() && y > end.getY()) {
             return false;
-        } else if (y < start.getY() && y < end.getY()) {
-            return false;
+        } else {
+            return !(y < start.getY()) || !(y < end.getY());
         }
-        return true;
-
     }
 }
 

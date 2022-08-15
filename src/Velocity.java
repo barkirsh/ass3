@@ -1,3 +1,5 @@
+// 327721544 Bar Kirshenboim
+
 /**
  * Velocity specifies the change in position on the `x` and the `y` axes.
  */
@@ -71,8 +73,8 @@ public class Velocity {
      * @return - point
      */
     public static Velocity fromAngleAndSpeed(double angle, double speed) {
-        double dx = Math.cos(angle * (Math.PI / 180)) * speed;
-        double dy = Math.sin(angle * (Math.PI / 180)) * speed;
+        double dx = Math.sin(angle * (Math.PI / 180)) * speed;
+        double dy = Math.cos(angle * (Math.PI / 180)) * speed;
         return new Velocity(dx, dy);
     }
 }

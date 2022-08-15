@@ -1,7 +1,12 @@
+// 327721544 Bar Kirshenboim
+
 import java.util.ArrayList;
 
+/**
+ * rectangle class, defined rectangle.
+ */
 public class Rectangle {
-    private Point upperLeft;
+    private final Point upperLeft;
     private double width;
     private double height;
 
@@ -42,7 +47,34 @@ public class Rectangle {
         return this.upperLeft;
     }
 
-    //place for setters if we need some
+    /**
+     * @return center of rectangle.
+     */
+    public Point getCenter() {
+        double x = (this.getUpperLeft().getX() + this.getWidth()) / 2;
+        double y = (this.getUpperLeft().getY() + this.getHeight()) / 2;
+        return new Point(x, y);
+    }
+
+
+    /**
+     * setter to height of rectangle.
+     *
+     * @param height height
+     */
+
+    public void setHeight(double height) {
+        this.height = height;
+    }
+
+    /**
+     * setter to width of rectangle.
+     *
+     * @param width width
+     */
+    public void setWidth(double width) {
+        this.width = width;
+    }
 
     /**
      * @param line to check with intersection points
@@ -62,9 +94,9 @@ public class Rectangle {
         Line[] recLines = {upLine, leftLine, rightLine, lowerLine};
 
         java.util.List<Point> crossPoints = new ArrayList<>(); //creating the intersectionPoints list
-        Point cross = null;
-        for (int i = 0; i < recLines.length; i++) {
-            cross = line.intersectionWith(recLines[i]);
+        Point cross;
+        for (Line recLine : recLines) {
+            cross = line.intersectionWith(recLine);
             if (cross != null) {
                 crossPoints.add(cross);
             }
