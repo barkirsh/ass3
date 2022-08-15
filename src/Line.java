@@ -180,8 +180,8 @@ public class Line {
         return false;
     }
 
-    /**
-     * from here are the new function that were added to this specific ex
+    /*
+      from here are the new function that were added to this specific ex
      */
     /**
      * @param p point needed to be checked
@@ -242,9 +242,7 @@ public class Line {
     public Point closestIntersectionToStartOfLine(Rectangle rect) {
         java.util.List<Point> pointList = rect.intersectionPoints(this);
         Point[] points = pointList.toArray(new Point[2]);
-        if (pointList == null) {
-            return null;
-        } else if (points[1] == null) {
+        if (points[1] == null) {
             return points[0];
         } else {
             if (this.distancePointFromLine(points[0]) - this.distancePointFromLine(points[1]) <= ERROR) {

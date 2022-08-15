@@ -8,11 +8,16 @@ import biuoop.KeyboardSensor;
  */
 public class Paddle implements Sprite, Collidable {
     private final biuoop.KeyboardSensor keyboard;
+
+    private enum Region {
+        LL, L, MID, R, RR, ERROR
+    }
+
     private final Block block;
     //private GameEnvironment environment;
-    private double left = 0;
-    private double right = 800;
-    private int regiun = 3;
+    private final double left = 0;
+    private final double right = 800;
+    private Region region = Region.MID;
 
     /**
      * constructor of paddle.
@@ -90,37 +95,28 @@ public class Paddle implements Sprite, Collidable {
      * @param collisionPoint the collision point
      * @return region to collision with paddle
      */
-    public int getRegiunUsingCollision(Point collisionPoint) {
+    public Region getRegionUsingCollision(Point collisionPoint) {
         double x = collisionPoint.getX();
-        double leftX = this.getCollisionRectangle().getUpperLeft().getX();
-        double rightX = this.getCollisionRectangle().getUpperLeft().getX() + this.getCollisionRectangle().getWidth();
-        double midX = (rightX + leftX) / 2;
-        double midLeft = (midX + leftX) / 2;
-        double midRight = (midX + rightX) / 2;
-        if (x == midX) {
-            return 3;
-        } else if (leftX <= x && x < midLeft) {
-            return 1;
-        } else if (midLeft <= x && x < midX) {
-            return 2;
-        } else if (midX < x && x <= midRight) {
-            return 4;
-        } else if (midRight < x && x <= rightX) {
-            return 5;
+        double left = this.getCollisionRectangle().getUpperLeft().getX();
+        double right = this.getCollisionRectangle().getUpperLeft().getX() + this.getCollisionRectangle().getWidth();
+        double mid = (right + left) / 2;
+        double midLeft = (mid + left) / 2;
+        double midRight = (mid + right) / 2;
+        if (x == mid) {
+            return Region.MID;
+        } else if (left <= x && x < midLeft) {
+            return Region.LL;
+        } else if (midLeft <= x && x < mid) {
+            return Region.L;
+        } else if (mid < x && x <= midRight) {
+            return Region.R;
+        } else if (midRight < x && x <= right) {
+            return Region.RR;
         }
-        return 0;
+        System.out.println("not has a region!");
+        return Region.ERROR;
 
     }
-// public boolean inPaddle(Point p) {
-//     double xLeft = this.getCollisionRectangle().getUpperLeft().getX();
-//     double xRight = xLeft + this.getCollisionRectangle().getWidth();
-//     double yUp = this.getCollisionRectangle().getUpperLeft().getY();
-//     double yLow = yUp + this.getCollisionRectangle().getHeight();
-//
-//     double centerX = p.getX();
-//     double centerY = p.getY();
-//     return (centerX < xRight && centerX > xLeft) && (centerY < yLow && centerY > yUp);
-// }
 
     /**
      * @param collisionPoint  collision point
@@ -128,20 +124,20 @@ public class Paddle implements Sprite, Collidable {
      * @return velocity after hit
      */
     public Velocity hit(Point collisionPoint, Velocity currentVelocity) {
-        int angle = 0;
+        int angle;
         double speed = Math.sqrt(currentVelocity.getDx() * currentVelocity.getDx()
                 + currentVelocity.getDy() * currentVelocity.getDy());
-        this.regiun = getRegiunUsingCollision(collisionPoint);
-        if (this.regiun == 5) {
+        this.region = getRegionUsingCollision(collisionPoint);
+        if (this.region == Region.RR) {
             angle = 60;
-        } else if (this.regiun == 4) {
+        } else if (this.region == Region.R) {
             angle = 30;
 
-        } else if (this.regiun == 3) {
+        } else if (this.region == Region.MID) {
             return this.block.hit(collisionPoint, currentVelocity);
-        } else if (this.regiun == 2) {
+        } else if (this.region == Region.L) {
             angle = -30;
-        } else if (this.regiun == 1) {
+        } else if (this.region == Region.LL) {
             angle = -60;
         } else {
             return this.block.hit(collisionPoint, currentVelocity);
